@@ -8,7 +8,7 @@ class Blog(BaseModel):
 class BlogState(BaseModel):
     topic: str
     blog: Optional[Blog] = None
-    current_language: str
+    current_language: str = ""
 
     class Config:
         arbitrary_types_allowed = True

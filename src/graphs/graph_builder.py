@@ -49,7 +49,7 @@ class GraphBuilder:
             {
                 "hindi": "hindi_translation",
                 "french": "french_translation",
-                
+                "english": END
             }
         )
         self.graph.add_edge("hindi_translation",END)

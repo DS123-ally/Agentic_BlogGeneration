@@ -1,5 +1,6 @@
 import uvicorn
 from fastapi import FastAPI,Request
+from fastapi.middleware.cors import CORSMiddleware
 from src.graphs.graph_builder import GraphBuilder
 from src.llms.groqllm import GroqLLM
 
@@ -8,6 +9,15 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app=FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 os.environ["LANGSMITH_API_KEY"]=os.getenv("LANGCHAIN_API_KEY")
 
 
