@@ -14,25 +14,26 @@ class BlogNode:
         Create the title for the blog
         """ 
 
-        if "topic" in state and state["topic"]:
+        if state.topic:
             prompt="""
                  You are an expert blog content writer.Use Markdown formatting.Generate a blog title for the {topic}.This title should be creative and SEO friendly.
         """
-            system_message=prompt.format(topic=state["topic"])
+            system_message=prompt.format(topic=state.topic)
             response=self.llm.invoke(system_message)
             return {"blog":{"title":response.content}}
+
         
 
 
     def content_generation(self,state:BlogState):
 
-        if "topic" in state and state["topic"]:
+        if state.topic:
             system_prompt="""
                  You are an expert blog writer.Use Markdown formatting.Generate a detailed blog content with detailed breakdown for the {topic}
         """
-            system_message=system_prompt.format(topic=state["topic"])
+            system_message=system_prompt.format(topic=state.topic)
             response=self.llm.invoke(system_message)
-            return {"blog":{"title":state["blog"]["title"],"content":response.content}}
+            return {"blog":{"title":state.blog.title if state.blog else "","content":response.content}}
         
 
     def translation(self,state:BlogState):
@@ -52,20 +53,20 @@ class BlogNode:
         
         """
 
-        blog_content = state["blog"]["content"]
+        blog_content = state.blog.content if state.blog else ""
         message = [
-            HumanMessage(content=translation_prompts.format(current_language=state["current_language"],blog_content=blog_content))
+            HumanMessage(content=translation_prompts.format(current_language=state.current_language,blog_content=blog_content))
         ]
-        translation_content = self.llm.with_structured_output(BlogState).invoke(message)
+        translation_response = self.llm.invoke(message)
         return {
             "blog": {
-                "title": state["blog"]["title"],
-                "content": translation_content.blog.content,
+                "title": state.blog.title if state.blog else "",
+                "content": translation_response.content,
             }
         }
 
     def route(self,state:BlogState):
-        return {"current_language":state["current_language"]}
+        return {"current_language":state.current_language}
     
 
     def route_decision(self,state:BlogState):
@@ -73,9 +74,10 @@ class BlogNode:
         Route the content to the respective translation function.
         
         """
-        if state["current_language"]=="hindi":
+        language = state.current_language.lower()
+        if language=="hindi":
             return "hindi"
-        elif state["current_language"]=="french":
+        elif language=="french":
             return "french"
         else:
-            return state["current_language"]
+            return language
